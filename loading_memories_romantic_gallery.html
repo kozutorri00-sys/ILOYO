@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loading Memories - Romantic Gallery</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&family=Playfair+Display:ital,wght@0,400;1,600&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #08080a;
+            color: #ffffff;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        /* Glowing Heart Pulse */
+        @keyframes heartPulse {
+            0% { transform: scale(1); filter: drop-shadow(0 0 5px #ff2a75) drop-shadow(0 0 15px #ff2a75); }
+            50% { transform: scale(1.18); filter: drop-shadow(0 0 15px #ff2a75) drop-shadow(0 0 30px #ff69b4); }
+            100% { transform: scale(1); filter: drop-shadow(0 0 5px #ff2a75) drop-shadow(0 0 15px #ff2a75); }
+        }
+
+        .glowing-heart {
+            animation: heartPulse 1.8s infinite ease-in-out;
+            color: #ff2a75;
+        }
+
+        /* Infinite Floating/Scrolling Up Effect */
+        @keyframes floatUp {
+            0% {
+                transform: translateY(100vh);
+            }
+            100% {
+                transform: translateY(-120vh);
+            }
+        }
+
+        .floating-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            overflow: hidden;
+        }
+
+        .scroll-wrapper {
+            position: absolute;
+            width: 100%;
+            top: 0;
+            left: 0;
+            animation: infiniteScroll 35s linear infinite;
+        }
+
+        @keyframes infiniteScroll {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-50%); }
+        }
+
+        /* Card styles with soft glow */
+        .photo-card {
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 105, 180, 0.25);
+            box-shadow: 0 8px 32px 0 rgba(255, 42, 117, 0.2);
+            border-radius: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .photo-card:hover {
+            transform: scale(1.03);
+            border-color: rgba(255, 105, 180, 0.6);
+            box-shadow: 0 12px 40px 0 rgba(255, 42, 117, 0.4);
+        }
+
+        /* Floating Romantic Text Particles */
+        .romantic-text-bg {
+            position: absolute;
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            color: rgba(255, 255, 255, 0.18);
+            text-shadow: 0 0 12px rgba(255, 105, 180, 0.3);
+            pointer-events: none;
+            white-space: nowrap;
+            letter-spacing: 2px;
+        }
+
+        /* Custom Dots Pulse */
+        .dot-flashing {
+            animation: dotFlashing 1s infinite alternate;
+        }
+        .dot-flashing:nth-child(2) { animation-delay: 0.2s; }
+        .dot-flashing:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes dotFlashing {
+            0% { opacity: 0.2; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen bg-black">
+
+    <!-- Frame Container Mobile Friendly -->
+    <div id="app" class="relative w-full max-w-md h-screen bg-[#07070a] overflow-hidden shadow-2xl border-x border-pink-900/20 flex flex-col justify-between">
+
+        <!-- 1. LOADING SCREEN -->
+        <div id="loading-screen" class="absolute inset-0 z-50 bg-[#060608] flex flex-col items-center justify-center transition-opacity duration-1000 ease-out cursor-pointer" onclick="startExperience()">
+            <!-- Glowing Heart -->
+            <div class="mb-8">
+                <i class="fa-solid fa-heart text-5xl glowing-heart"></i>
+            </div>
+
+            <!-- Title Text -->
+            <h1 class="text-xs tracking-[0.4em] text-pink-200/80 font-light mb-4 uppercase">
+                L O A D I N G &nbsp; M E M O R I E S
+            </h1>
+
+            <!-- Loading Dots Animation -->
+            <div class="flex gap-2">
+                <span class="w-1.5 h-1.5 rounded-full bg-pink-500 dot-flashing"></span>
+                <span class="w-1.5 h-1.5 rounded-full bg-pink-500 dot-flashing"></span>
+                <span class="w-1.5 h-1.5 rounded-full bg-pink-500 dot-flashing"></span>
+            </div>
+
+            <!-- Click/Tap Prompt -->
+            <p id="tap-prompt" class="absolute bottom-16 text-[10px] tracking-widest text-pink-300/40 uppercase animate-pulse">
+                [ Sentuh layar untuk membuka ]
+            </p>
+        </div>
+
+        <!-- 2. ROMANTIC GALLERY SCREEN -->
+        <div id="gallery-screen" class="relative inset-0 w-full h-full opacity-0 transition-opacity duration-1000 overflow-hidden">
+            
+            <!-- Floating Text Background Layer (Dynamic JS Generated) -->
+            <div id="text-particles-container" class="absolute inset-0 pointer-events-none z-0"></div>
+
+            <!-- Infinite Vertical Scrolling Gallery Container -->
+            <div id="gallery-scroller" class="scroll-wrapper z-10 px-4 pt-10">
+                <!-- Content generated dynamically via JavaScript to ensure infinite seamless loop -->
+            </div>
+
+            <!-- Music Control Button -->
+            <div class="absolute top-5 right-5 z-40">
+                <button id="music-btn" onclick="toggleAudio()" class="w-10 h-10 rounded-full bg-pink-950/40 backdrop-blur-md border border-pink-500/30 flex items-center justify-center text-pink-300 shadow-lg active:scale-95 transition-all">
+                    <i id="music-icon" class="fa-solid fa-music text-xs animate-spin" style="animation-duration: 4s;"></i>
+                </button>
+            </div>
+
+            <!-- Bottom Gradient Overlay for visual depth -->
+            <div class="absolute bottom-0 inset-x-0 h-28 bg-gradient-to-t from-[#07070a] to-transparent pointer-events-none z-20"></div>
+            <div class="absolute top-0 inset-x-0 h-20 bg-gradient-to-b from-[#07070a] to-transparent pointer-events-none z-20"></div>
+        </div>
+
+    </div>
+
+    <!-- Audio Element (Romantic instrumental BGM placeholder) -->
+    <audio id="bgm" loop preload="auto">
+        <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=romantic-piano-112199.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        // Romantic quotes array
+        const romanticQuotes = [
+            "you mean everything",
+            "only you",
+            "stay with me",
+            "always on my mind",
+            "my favorite person",
+            "forever",
+            "my safe place",
+            "i love you",
+            "you are enough",
+            "my heart is yours",
+            "thinking of you",
+            "i miss you"
+        ];
+
+        // Sample Gallery Items (Images + Texts)
+        const galleryItems = [
+            { type: "text", content: "you mean everything", style: "text-lg text-pink-200 font-serif italic text-center py-4" },
+            { type: "image", src: "https://images.unsplash.com/photo-1518199266791-5375a83190b7?q=80&w=600&auto=format&fit=crop", caption: "stay with me" },
+            { type: "text", content: "only you", style: "text-xl text-pink-300/90 font-light tracking-wider text-center py-3" },
+            { type: "image", src: "https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?q=80&w=600&auto=format&fit=crop", caption: "my favorite person" },
+            { type: "text", content: "always on my mind", style: "text-md text-pink-100/80 font-serif text-center py-2" },
+            { type: "image", src: "https://images.unsplash.com/photo-1522673607200-164d1b6ce486?q=80&w=600&auto=format&fit=crop", caption: "my safe place" },
+            { type: "text", content: "forever and ever", style: "text-lg text-pink-200 font-serif italic text-center py-4" },
+            { type: "image", src: "https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?q=80&w=600&auto=format&fit=crop", caption: "i love you" }
+        ];
+
+        let audio = document.getElementById('bgm');
+        let isPlaying = false;
+        let hasStarted = false;
+
+        function generateBackgroundText() {
+            const container = document.getElementById('text-particles-container');
+            const totalParticles = 25;
+
+            for (let i = 0; i < totalParticles; i++) {
+                const el = document.createElement('div');
+                el.className = 'romantic-text-bg';
+                
+                // Pick random quote
+                const randomQuote = romanticQuotes[Math.floor(Math.random() * romanticQuotes.length)];
+                el.innerText = randomQuote;
+
+                // Random Positioning & Sizing
+                const top = Math.random() * 100;
+                const left = Math.random() * 80 - 10;
+                const fontSize = Math.random() * 14 + 12; // 12px to 26px
+                const opacity = Math.random() * 0.25 + 0.08;
+
+                el.style.top = `${top}%`;
+                el.style.left = `${left}%`;
+                el.style.fontSize = `${fontSize}px`;
+                el.style.opacity = opacity;
+
+                container.appendChild(el);
+            }
+        }
+
+        function buildGallery() {
+            const scroller = document.getElementById('gallery-scroller');
+            
+            // Function to generate gallery block
+            const createGalleryBlock = () => {
+                const fragment = document.createDocumentFragment();
+                galleryItems.forEach(item => {
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'my-6 flex justify-center';
+
+                    if (item.type === 'text') {
+                        const textDiv = document.createElement('div');
+                        textDiv.className = `${item.style} drop-shadow-[0_0_10px_rgba(255,42,117,0.5)]`;
+                        textDiv.innerText = item.content;
+                        wrapper.appendChild(textDiv);
+                    } else if (item.type === 'image') {
+                        const card = document.createElement('div');
+                        card.className = 'photo-card p-3 w-64 rounded-2xl flex flex-col items-center gap-2';
+
+                        const img = document.createElement('img');
+                        img.src = item.src;
+                        img.alt = "Memory Photo";
+                        img.className = "w-full h-56 object-cover rounded-xl shadow-inner";
+                        img.loading = "lazy";
+
+                        // Fallback image handling
+                        img.onerror = function() {
+                            this.src = 'https://placehold.co/400x500/ff2a75/ffffff?text=Love+Memory';
+                        };
+
+                        const caption = document.createElement('p');
+                        caption.className = "text-xs text-pink-200/90 font-light italic mt-1 tracking-wider";
+                        caption.innerText = item.caption;
+
+                        card.appendChild(img);
+                        card.appendChild(caption);
+                        wrapper.appendChild(card);
+                    }
+
+                    fragment.appendChild(wrapper);
+                });
+                return fragment;
+            };
+
+            // Duplicate content 3 times for seamless looping effect
+            scroller.appendChild(createGalleryBlock());
+            scroller.appendChild(createGalleryBlock());
+            scroller.appendChild(createGalleryBlock());
+        }
+
+        function startExperience() {
+            if (hasStarted) return;
+            hasStarted = true;
+
+            // Fade out Loading Screen
+            const loadingScreen = document.getElementById('loading-screen');
+            const galleryScreen = document.getElementById('gallery-screen');
+
+            loadingScreen.style.opacity = '0';
+            
+            // Play Audio
+            try {
+                audio.play().then(() => {
+                    isPlaying = true;
+                    updateMusicIcon();
+                }).catch(err => {
+                    console.log("Autoplay prevented:", err);
+                    isPlaying = false;
+                    updateMusicIcon();
+                });
+            } catch (e) {
+                console.log(e);
+            }
+
+            setTimeout(() => {
+                loadingScreen.style.display = 'none';
+                galleryScreen.classList.remove('opacity-0');
+                galleryScreen.classList.add('opacity-100');
+            }, 1000);
+        }
+
+        function toggleAudio() {
+            if (isPlaying) {
+                audio.pause();
+                isPlaying = false;
+            } else {
+                audio.play();
+                isPlaying = true;
+            }
+            updateMusicIcon();
+        }
+
+        function updateMusicIcon() {
+            const icon = document.getElementById('music-icon');
+            if (isPlaying) {
+                icon.className = 'fa-solid fa-music text-xs animate-spin';
+            } else {
+                icon.className = 'fa-solid fa-volume-xmark text-xs opacity-60';
+            }
+        }
+
+        window.onload = function() {
+            generateBackgroundText();
+            buildGallery();
+
+            // Auto-transition after 3.5 seconds if user hasn't clicked
+            setTimeout(() => {
+                if (!hasStarted) {
+                    startExperience();
+                }
+            }, 3800);
+        };
+    </script>
+</body>
+</html>
